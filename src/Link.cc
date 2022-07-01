@@ -4,8 +4,9 @@
 
 namespace kickcat
 {
-    Link::Link(std::shared_ptr<AbstractSocket> socket)
-        : socket_(socket)
+    Link::Link(std::shared_ptr<AbstractSocket> socketNominal, std::shared_ptr<AbstractSocket> socketRedundancy)
+        : socketNominal_(socketNominal)
+        , socketRedundancy_(socketRedundancy)
     {
 
     }
@@ -13,8 +14,8 @@ namespace kickcat
 
     void Link::writeThenRead(Frame& frame)
     {
-        frame.write(socket_);
-        frame.read(socket_);
+        frame.write(socketNominal_);
+        frame.read(socketRedundancy_);
     }
 
 
@@ -25,8 +26,11 @@ namespace kickcat
 
         try
         {
-            frame_.write(socket_);
-            ++sent_frame_;
+            frame_.write(socketNominal_);
+            ++sent_frameNominal_;
+
+//            frame_.write(socketRedundancy_);
+//            ++sent_frameRedundancy_;
         }
         catch (std::exception const& e)
         {
@@ -82,14 +86,14 @@ namespace kickcat
     {
         finalizeDatagrams();
 
-        uint8_t waiting_frame = sent_frame_;
-        sent_frame_ = 0;
+        uint8_t waiting_frame = sent_frameNominal_;
+        sent_frameNominal_ = 0;
 
         for (int32_t i = 0; i < waiting_frame; ++i)
         {
             try
             {
-                frame_.read(socket_);
+                frame_.read(socketRedundancy_);
                 while (frame_.isDatagramAvailable())
                 {
                     auto [header, data, wkc] = frame_.nextDatagram();
@@ -120,7 +124,7 @@ namespace kickcat
 
             // Attach a callback to handle not THAT lost frames.
             // -> if a frame suspected to be lost was in fact in the pipe, it is needed to pop it
-            callbacks_[i].process = [&](DatagramHeader const*, uint8_t const*, uint16_t){ frame_.read(socket_); return DatagramState::OK; };
+            callbacks_[i].process = [&](DatagramHeader const*, uint8_t const*, uint16_t){ frame_.read(socketRedundancy_); return DatagramState::OK; };
         }
 
         index_queue_ = index_head_;

@@ -48,9 +48,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-add_executable(kickcat_unit unit/bus-t.cc
+add_executable(kickcat_unit# unit/bus-t.cc
                             unit/frame-t.cc
-                            unit/link-t.cc
+                            #unit/link-t.cc
                             unit/mailbox-t.cc
                             unit/protocol-t.cc
                             unit/slave-t.cc

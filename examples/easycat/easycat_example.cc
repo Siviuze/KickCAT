@@ -16,14 +16,15 @@ using namespace kickcat;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2)
+    if (argc != 3)
     {
-        printf("usage: ./test NIC\n");
+        printf("usage: ./test NIC_nominal NIC_redundancy\n");
         return 1;
     }
 
-    auto socket = std::make_shared<Socket>();
-    Bus bus(socket);
+    auto socketNominal    = std::make_shared<Socket>();
+    auto socketRedundancy = std::make_shared<Socket>();
+    Bus bus(socketNominal, socketRedundancy);
 
     auto print_current_state = [&]()
     {
@@ -37,7 +38,8 @@ int main(int argc, char* argv[])
     uint8_t io_buffer[2048];
     try
     {
-        socket->open(argv[1], 2ms);
+        socketNominal->open(argv[1], 2ms);
+        socketRedundancy->open(argv[2], 2ms);
         bus.init();
 
         print_current_state();
@@ -88,7 +90,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    socket->setTimeout(500us);
+    socketNominal->setTimeout(500us);
+    socketRedundancy->setTimeout(500us);
 
     constexpr int64_t LOOP_NUMBER = 12 * 3600 * 1000; // 12h
     FILE* stat_file = fopen("stats.csv", "w");

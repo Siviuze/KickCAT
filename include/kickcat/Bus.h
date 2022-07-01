@@ -19,7 +19,7 @@ namespace kickcat
     class Bus
     {
     public:
-        Bus(std::shared_ptr<AbstractSocket> socket);
+        Bus(std::shared_ptr<AbstractSocket> socketNominal, std::shared_ptr<AbstractSocket> socketRedundancy);
         ~Bus() = default;
 
         // Enable user to adapt defaults values if they dont fit the current application (i.e. unit tests)

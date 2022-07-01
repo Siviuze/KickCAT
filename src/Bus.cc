@@ -5,8 +5,8 @@
 
 namespace kickcat
 {
-    Bus::Bus(std::shared_ptr<AbstractSocket> socket)
-        : link_(socket)
+    Bus::Bus(std::shared_ptr<AbstractSocket> socketNominal, std::shared_ptr<AbstractSocket> socketRedundancy)
+        : link_(socketNominal, socketRedundancy)
     {
     }
 
