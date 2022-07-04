@@ -52,7 +52,7 @@ namespace kickcat
 
         // handle bus access
         void read(std::shared_ptr<AbstractSocket> socket);
-        void write(std::shared_ptr<AbstractSocket> socket);
+        void write(std::shared_ptr<AbstractSocket> socketNominal, std::shared_ptr<AbstractSocket> socketRedundancy = nullptr);
 
         // helper to access raw frame (mostly for unit testing)
         uint8_t* data() { return frame_.data(); }

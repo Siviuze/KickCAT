@@ -208,11 +208,11 @@ namespace kickcat
     }
 
 
-    void Frame::write(std::shared_ptr<AbstractSocket> socket)
+    void Frame::write(std::shared_ptr<AbstractSocket> socketNominal, std::shared_ptr<AbstractSocket> socketRedundancy)
     {
         int32_t toWrite = finalize();
-        int32_t written = socket->write(frame_.data(), toWrite);
-        header_->len = 0; // reset len for future usage
+
+        int32_t written = socketNominal->write(frame_.data(), toWrite);
 
         if (written < 0)
         {
@@ -223,5 +223,20 @@ namespace kickcat
         {
             THROW_ERROR("Wrong number of bytes written");
         }
+
+        if (socketRedundancy != nullptr)
+        {
+            written = socketRedundancy->write(frame_.data(), toWrite);
+            if (written < 0)
+            {
+                THROW_SYSTEM_ERROR("write()");
+            }
+
+            if (written != toWrite)
+            {
+                THROW_ERROR("Wrong number of bytes written");
+            }
+        }
+        header_->len = 0; // reset len for future usage
     }
 }

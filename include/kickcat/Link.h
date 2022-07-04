@@ -46,7 +46,6 @@ namespace kickcat
         uint8_t index_queue_{0};
         uint8_t index_head_{0};
         uint8_t sent_frameNominal_{0};
-        uint8_t sent_frameRedundancy_{0};
         Frame frame_{PRIMARY_IF_MAC};
 
         struct Callbacks

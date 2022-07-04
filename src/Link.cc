@@ -14,8 +14,30 @@ namespace kickcat
 
     void Link::writeThenRead(Frame& frame)
     {
-        frame.write(socketNominal_);
-        frame.read(socketRedundancy_);
+        frame.write(socketNominal_, socketRedundancy_);
+
+        try
+        {
+            frame.read(socketRedundancy_);
+            auto [header, _, wkc] = frame.nextDatagram();
+            printf("Nominal frame wkc %i \n", wkc);
+        }
+        catch (std::exception const& e)
+        {
+            DEBUG_PRINT("%s\n", e.what());
+        }
+
+        try
+        {
+            Frame debugFrame;
+            debugFrame.read(socketNominal_);
+            auto [header, _, wkc] = debugFrame.nextDatagram();
+            printf("Redundancy frame wkc %i Datagrame size %i \n", wkc, header->len);
+        }
+        catch (std::exception const& e)
+        {
+            DEBUG_PRINT("%s\n", e.what());
+        }
     }
 
 
@@ -28,9 +50,6 @@ namespace kickcat
         {
             frame_.write(socketNominal_);
             ++sent_frameNominal_;
-
-//            frame_.write(socketRedundancy_);
-//            ++sent_frameRedundancy_;
         }
         catch (std::exception const& e)
         {
